@@ -8,7 +8,7 @@ object GoogleHash {
 
   def main(args: Array[String]): Unit = {
     //        val filename = "logo"
-    val filename = "right_angle"
+    val filename = "example"
     //    val filename = "learn_and_teach"
     val tmp = Source.fromFile(Paths.get(s"$filename.in").toFile).getLines().toList
 
