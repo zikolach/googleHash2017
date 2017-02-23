@@ -30,7 +30,14 @@ object GoogleHash {
       else list
     }
 
-    Task(videosList.toList, readEndpoints(tmp.drop(2).toList, List.empty), List.empty, cacheSize)
+    val endpointsList = readEndpoints(tmp.drop(2).toList, List.empty)
+    val rdList = tmp.drop(2 + endpointsList.size + endpointsList.map(_.cacheConnections.size).sum)
+      .map(reqStr => {
+        val videoIndex :: endpointIndex :: count :: Nil = reqStr.split(' ').map(_.toInt).toList
+        RequestDescription(videoIndex, endpointIndex, count)
+      }).toList
+
+    Task(videosList.toList, endpointsList, rdList, cacheSize)
   }
 
 
@@ -56,6 +63,6 @@ object GoogleHash {
     val videos = next.head
     val vids: Array[Int] = videos.split(" ").filterNot(_.isEmpty).map(a => a.toInt)
 
-    println( vids.mkString(" MB "))
+    println(vids.mkString(" MB "))
   }
 }
