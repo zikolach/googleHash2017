@@ -36,20 +36,34 @@ class GoogleHashTest extends WordSpec with Matchers {
     "slice example pizza" in {
       val result = Task("example.in").slice().toString
       val expected =
-        """3 5 1 6
-          |TTTTT
-          |TMMMT
-          |TTTTT
+        """3
+          |0 0 2 1
+          |0 2 2 2
+          |0 3 2 4
           |"""
           .stripMargin
-      result should be(
-        expected)
+      result shouldBe expected
     }
   }
 
   "Pizza" should {
     "cut a slice" in {
 
+    }
+  }
+
+  "Slice" should {
+    "calc dist to point" in {
+      val slice = Slice(examplePizza, 1, 1, 3, 3)
+      slice.dist(Pos(4,3)) - 1.0 should be < 0.01
+      slice.dist(Pos(0,1)) - 1.0 should be <  0.01
+      slice.dist(Pos(0,0)) - 1.41 should be < 0.01
+      slice.dist(Pos(5,4)) - Math.sqrt(5) should be < 0.01
+    }
+
+    "calc size" in {
+      val slice = Slice(examplePizza, 1, 1, 3, 3)
+      slice.size should be (9)
     }
   }
 }
