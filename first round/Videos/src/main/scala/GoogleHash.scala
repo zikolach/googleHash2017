@@ -9,17 +9,18 @@ object GoogleHash {
 
   def main(args: Array[String]): Unit = {
     //        val filename = "logo"
-    val filename = "example"
-    //    val filename = "learn_and_teach"
-    val tmp = Source.fromFile(Paths.get(s"$filename.in").toFile).getLines().toList
+    val filename = "me_at_the_zoo.in"
+    val tmp = Source.fromFile(Paths.get(s"$filename").toFile).getLines().toList
 
     val data = tmp.head.split(' ')
-    val rows = Integer.parseInt(data(0))
-    val cols = Integer.parseInt(data(1))
-    val min = Integer.parseInt(data(2))
-    val max = Integer.parseInt(data(3))
+    val videos = Integer.parseInt(data(0))
+    val endpoints = Integer.parseInt(data(1))
+    val requests = Integer.parseInt(data(2))
+    val caches = Integer.parseInt(data(3))
+    val csize = Integer.parseInt(data(4))
 
-    println("Rows " + rows + " Cols: " + cols)
+    println("Videos:  " + videos + " Endpoints: " + endpoints)
+    println("Requests:  " + requests + " Caches: " + caches + " " + csize + " MB")
 
 
 
