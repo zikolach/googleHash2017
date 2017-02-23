@@ -1,4 +1,4 @@
-name := "PizzaSlicing"
+name := "Videos"
 
 version := "1.0"
 
