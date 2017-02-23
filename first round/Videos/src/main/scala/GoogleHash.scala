@@ -60,7 +60,7 @@ object GoogleHash {
   def solveTask(task: Task): Result = {
     var caches = task.endpoints.flatMap(_.cacheConnections.keys).distinct.map(ind => CacheServer(ind))
     var cacheSizesMap = task.endpoints.flatMap(_.cacheConnections.keys).distinct.map(_ -> 0).toMap
-    task.requestDescriptions.foreach { case RequestDescription(videoIndex, endpointIndex, requestsCount) =>
+    task.requestDescriptions.sortBy(_.count).reverse.foreach { case RequestDescription(videoIndex, endpointIndex, requestsCount) =>
       val Some(Video(_, videoSize)) = task.videos.find(_.index == videoIndex)
       val Some(Endpoint(_, endpintLatency, cacheConnections)) = task.endpoints.find(_.index == endpointIndex)
       if (cacheConnections.nonEmpty) {
@@ -70,7 +70,7 @@ object GoogleHash {
               used + videoSize <= task.cacheSize &&
               !caches.exists(_.videos.contains(videoIndex))
         }
-        println(nonFullConnectedCaches)
+//        println(nonFullConnectedCaches)
         nonFullConnectedCaches.foreach { case (index, size) =>
           caches = caches.map {
             case CacheServer(currInd, videos) if currInd == index => CacheServer(currInd, videoIndex :: videos)
