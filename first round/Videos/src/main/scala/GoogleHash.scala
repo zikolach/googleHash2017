@@ -85,11 +85,15 @@ object GoogleHash {
 
 
   def main(args: Array[String]): Unit = {
-//    val filename = "me_at_the_zoo.in"
-//    val filename = "example.in"
-//    val filename = "trending_today.in"
-    val filename = "kittens.in"
-    val res = saveResult(solveTask(readTask(filename)))
-    Files.write(Paths.get(filename.split('.').head + ".out"), res.getBytes(StandardCharsets.UTF_8))
+    val filenames =
+      "me_at_the_zoo.in" ::
+        "example.in" ::
+        "trending_today.in" ::
+        "kittens.in" ::
+        Nil
+    filenames.foreach { filename =>
+      val res = saveResult(solveTask(readTask(filename)))
+      Files.write(Paths.get(filename.split('.').head + ".out"), res.getBytes(StandardCharsets.UTF_8))
+    }
   }
 }
