@@ -13,6 +13,9 @@ class GoogleHashSpec extends WordSpec with Matchers {
       task.requestDescriptions.length shouldBe 4
       task.cacheSize shouldBe 100
       task.videos.length shouldBe 5
+      task.videos.map(_.size).sum shouldBe 320
+      task.endpoints.map(_.cacheConnections.values.map(_.latency).sum).sum shouldBe 600
+      task.requestDescriptions.map(_.count).sum shouldBe 4000
     }
 
     "save result" in {
