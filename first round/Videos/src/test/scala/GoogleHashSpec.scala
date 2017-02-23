@@ -3,6 +3,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 
 class GoogleHashSpec extends WordSpec with Matchers {
+
   import GoogleHash._
 
   "GoogleHash" should {

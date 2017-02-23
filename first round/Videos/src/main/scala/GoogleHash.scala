@@ -7,14 +7,16 @@ object GoogleHash {
 
   case class Video(index: Int, size: Int)
 
-
   case class CacheConnection(index: Int, latency: Int)
 
   case class Endpoint(index: Int, latency: Int, cacheConnections: Map[Int, CacheConnection])
 
   case class RequestDescription(videoIndex: Int, endpointIndex: Int, count: Int)
 
-  case class Task(videos: List[Video], endpoints: List[Endpoint], requestDescriptions: List[RequestDescription], cacheSize: Int)
+  case class Task(videos: List[Video],
+                  endpoints: List[Endpoint],
+                  requestDescriptions: List[RequestDescription],
+                  cacheSize: Int)
 
   def readTask(filename: String): Task = {
     val tmp = Source.fromFile(filename).getLines().toSeq
