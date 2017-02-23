@@ -67,16 +67,16 @@ object GoogleHash {
         val nonFullConnectedCaches = cacheSizesMap.filter {
           case (cacheIndex, used) =>
             cacheConnections.keySet.contains(cacheIndex) &&
-              used < task.cacheSize + videoSize &&
+              used + videoSize <= task.cacheSize &&
               !caches.exists(_.videos.contains(videoIndex))
         }
-        //        println(nonFullConnectedCaches)
+        println(nonFullConnectedCaches)
         nonFullConnectedCaches.foreach { case (index, size) =>
           caches = caches.map {
             case CacheServer(currInd, videos) if currInd == index => CacheServer(currInd, videoIndex :: videos)
             case other => other
           }
-          cacheSizesMap.updated(index, cacheSizesMap(index) + videoSize)
+          cacheSizesMap = cacheSizesMap.updated(index, cacheSizesMap(index) + videoSize)
         }
       }
     }
@@ -85,7 +85,10 @@ object GoogleHash {
 
 
   def main(args: Array[String]): Unit = {
-    val filename = "me_at_the_zoo.in"
+//    val filename = "me_at_the_zoo.in"
+//    val filename = "example.in"
+//    val filename = "trending_today.in"
+    val filename = "kittens.in"
     val res = saveResult(solveTask(readTask(filename)))
     Files.write(Paths.get(filename.split('.').head + ".out"), res.getBytes(StandardCharsets.UTF_8))
   }
