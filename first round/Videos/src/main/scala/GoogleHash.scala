@@ -30,7 +30,10 @@ object GoogleHash {
     @tailrec
     def readEndpoints(rest: List[String], endpointsAcc: List[Endpoint]): List[Endpoint] = {
       val latency :: caches :: Nil = rest.head.split(' ').toList.map(_.toInt)
-      val cacheConnections = rest.tail.take(caches).map(_.split(' ').toList).map { case toCache :: cacheLatency :: Nil => CacheConnection(toCache.toInt, cacheLatency.toInt) }
+      val cacheConnections = rest.tail.take(caches).map(_.split(' ').toList).map {
+        case toCache :: cacheLatency :: Nil => CacheConnection(toCache.toInt, cacheLatency.toInt)
+        case _ => throw new Exception("Tro-lo-lo")
+      }
       val list = Endpoint(endpointsAcc.length, latency, cacheConnections.map(cc => (cc.index, cc)).toMap) :: endpointsAcc
       if (list.length < endpoints) readEndpoints(rest.drop(caches + 1), list)
       else list
@@ -52,6 +55,8 @@ object GoogleHash {
       |${result.caches.map(c => s"${c.index} ${c.videos.mkString(" ")}").mkString("\n")}
       |""".stripMargin
   }
+
+  def solveTask(task: Task): Result = ???
 
 
   def main(args: Array[String]): Unit = {

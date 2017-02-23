@@ -6,6 +6,13 @@ class GoogleHashSpec extends WordSpec with Matchers {
 
   import GoogleHash._
 
+  private val exampleSolution =
+    """3
+      |0 2
+      |1 3 1
+      |2 0 1
+      |""".stripMargin
+
   "GoogleHash" should {
     "read a task" in {
       val task = readTask("example.in")
@@ -23,16 +30,16 @@ class GoogleHashSpec extends WordSpec with Matchers {
         """1
           |0 1 2
           |""".stripMargin
+
       saveResult(Result(
         CacheServer(0, 2 :: Nil) ::
-        CacheServer(1, 3 :: 1 :: Nil) ::
-        CacheServer(2, 0 :: 1 :: Nil) ::
-          Nil)) shouldBe
-        """3
-          |0 2
-          |1 3 1
-          |2 0 1
-          |""".stripMargin
+          CacheServer(1, 3 :: 1 :: Nil) ::
+          CacheServer(2, 0 :: 1 :: Nil) ::
+          Nil)) shouldBe        exampleSolution
+    }
+
+    "solve task" in {
+      solveTask(readTask("example.in")) shouldBe exampleSolution
     }
   }
 }
