@@ -14,5 +14,12 @@ class GoogleHashSpec extends WordSpec with Matchers {
       task.cacheSize shouldBe 100
       task.videos.length shouldBe 5
     }
+
+    "save result" in {
+      saveResult(Result(CacheServer(0, 1 :: 2 :: Nil) :: Nil)) shouldBe
+        """1
+          |0 1 2
+          |""".stripMargin
+    }
   }
 }

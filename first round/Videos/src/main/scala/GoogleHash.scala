@@ -18,6 +18,10 @@ object GoogleHash {
                   requestDescriptions: List[RequestDescription],
                   cacheSize: Int)
 
+  case class CacheServer(index: Int, videos: List[Int] = List.empty)
+
+  case class Result(caches: List[CacheServer])
+
   def readTask(filename: String): Task = {
     val tmp = Source.fromFile(filename).getLines().toSeq
     val videos :: endpoints :: requests :: caches :: cacheSize :: Nil = tmp.head.split(' ').map(_.toInt).toList
@@ -40,6 +44,13 @@ object GoogleHash {
       }).toList
 
     Task(videosList.toList, endpointsList, rdList, cacheSize)
+  }
+
+
+  def saveResult(result: Result): String = {
+    s"""${result.caches.size}
+      |${result.caches.map(c => s"${c.index} ${c.videos.mkString(" ")}").mkString("\n")}
+      |""".stripMargin
   }
 
 
