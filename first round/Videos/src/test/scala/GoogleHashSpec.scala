@@ -39,7 +39,7 @@ class GoogleHashSpec extends WordSpec with Matchers {
     }
 
     "solve task" in {
-      solveTask(readTask("example.in")) shouldBe exampleSolution
+      saveResult(solveTask(readTask("example.in"))) shouldBe exampleSolution
     }
   }
 }

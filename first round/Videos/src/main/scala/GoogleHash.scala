@@ -1,4 +1,5 @@
-import java.nio.file.Paths
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
 
 import scala.annotation.tailrec
 import scala.io.Source
@@ -52,35 +53,40 @@ object GoogleHash {
 
   def saveResult(result: Result): String = {
     s"""${result.caches.size}
-      |${result.caches.map(c => s"${c.index} ${c.videos.mkString(" ")}").mkString("\n")}
-      |""".stripMargin
+       |${result.caches.sortBy(_.index).map(c => s"${c.index} ${c.videos.mkString(" ")}").mkString("\n")}
+       |""".stripMargin
   }
 
-  def solveTask(task: Task): Result = ???
+  def solveTask(task: Task): Result = {
+    var caches = task.endpoints.flatMap(_.cacheConnections.keys).distinct.map(ind => CacheServer(ind))
+    var cacheSizesMap = task.endpoints.flatMap(_.cacheConnections.keys).distinct.map(_ -> 0).toMap
+    task.requestDescriptions.foreach { case RequestDescription(videoIndex, endpointIndex, requestsCount) =>
+      val Some(Video(_, videoSize)) = task.videos.find(_.index == videoIndex)
+      val Some(Endpoint(_, endpintLatency, cacheConnections)) = task.endpoints.find(_.index == endpointIndex)
+      if (cacheConnections.nonEmpty) {
+        val nonFullConnectedCaches = cacheSizesMap.filter {
+          case (cacheIndex, used) =>
+            cacheConnections.keySet.contains(cacheIndex) &&
+              used < task.cacheSize + videoSize &&
+              !caches.exists(_.videos.contains(videoIndex))
+        }
+        //        println(nonFullConnectedCaches)
+        nonFullConnectedCaches.foreach { case (index, size) =>
+          caches = caches.map {
+            case CacheServer(currInd, videos) if currInd == index => CacheServer(currInd, videoIndex :: videos)
+            case other => other
+          }
+          cacheSizesMap.updated(index, cacheSizesMap(index) + videoSize)
+        }
+      }
+    }
+    Result(caches)
+  }
 
 
   def main(args: Array[String]): Unit = {
-    //        val filename = "logo"
-    readTask("example.txt")
-
-    val filename = "example.in"
-    val tmp = Source.fromFile(Paths.get(s"$filename").toFile).getLines().toList
-
-    val data = tmp.head.split(' ')
-    val nr_vids = Integer.parseInt(data(0))
-    val nr_ends = Integer.parseInt(data(1))
-    val nr_reqs = Integer.parseInt(data(2))
-    val nr_caches = Integer.parseInt(data(3))
-    val csize = Integer.parseInt(data(4))
-
-    println("Videos:  " + nr_vids + " Endpoints: " + nr_ends)
-    println("Requests:  " + nr_reqs + " Caches: " + nr_caches + " " + csize + " MB")
-
-    val next = tmp.tail
-
-    val videos = next.head
-    val vids: Array[Int] = videos.split(" ").filterNot(_.isEmpty).map(a => a.toInt)
-
-    println(vids.mkString(" MB "))
+    val filename = "me_at_the_zoo.in"
+    val res = saveResult(solveTask(readTask(filename)))
+    Files.write(Paths.get(filename.split('.').head + ".out"), res.getBytes(StandardCharsets.UTF_8))
   }
 }
