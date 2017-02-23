@@ -60,38 +60,55 @@ object GoogleHash {
   def solveTask(task: Task): Result = {
     var caches = task.endpoints.flatMap(_.cacheConnections.keys).distinct.map(ind => CacheServer(ind))
     var cacheSizesMap = task.endpoints.flatMap(_.cacheConnections.keys).distinct.map(_ -> 0).toMap
-    task.requestDescriptions.sortBy(_.count).reverse.foreach { case RequestDescription(videoIndex, endpointIndex, requestsCount) =>
-      val Some(Video(_, videoSize)) = task.videos.find(_.index == videoIndex)
-      val Some(Endpoint(_, endpintLatency, cacheConnections)) = task.endpoints.find(_.index == endpointIndex)
-      if (cacheConnections.nonEmpty) {
-        val nonFullConnectedCaches = cacheSizesMap.filter {
-          case (cacheIndex, used) =>
-            cacheConnections.keySet.contains(cacheIndex) &&
-              used + videoSize <= task.cacheSize &&
-              !caches.exists(_.videos.contains(videoIndex))
-        }
-//        println(nonFullConnectedCaches)
-        nonFullConnectedCaches.foreach { case (index, size) =>
-          caches = caches.map {
-            case CacheServer(currInd, videos) if currInd == index => CacheServer(currInd, videoIndex :: videos)
-            case other => other
+    val maxVideoSize = task.videos.map(_.size).max
+    val videoSizesMap = task.videos.map(v => v.index -> v.size).toMap
+
+    def rank(a: RequestDescription, b: RequestDescription): Boolean = {
+      a.count * (maxVideoSize - videoSizesMap(a.videoIndex)) > b.count * (maxVideoSize - videoSizesMap(b.videoIndex))
+    }
+
+    def cacheRank(e: Endpoint, c1: Int, c2: Int) = ???
+
+    task.requestDescriptions
+      // .sortWith(rank)
+      .sortBy(-_.count)
+      .foreach { case RequestDescription(videoIndex, endpointIndex, requestsCount) =>
+        val Some(Video(_, videoSize)) = task.videos.find(_.index == videoIndex)
+        val Some(Endpoint(_, endpintLatency, cacheConnections)) = task.endpoints.find(_.index == endpointIndex)
+        if (cacheConnections.nonEmpty) {
+          val nonFullConnectedCaches = cacheSizesMap.filter {
+            case (cacheIndex, used) =>
+              cacheConnections.keySet.contains(cacheIndex) &&
+                used + videoSize <= task.cacheSize &&
+                !caches.exists(_.videos.contains(videoIndex)) &&
+                endpintLatency > cacheConnections(cacheIndex).latency
           }
-          cacheSizesMap = cacheSizesMap.updated(index, cacheSizesMap(index) + videoSize)
+          nonFullConnectedCaches
+            .toSeq
+            .sortBy({ case (ind, _) => cacheConnections(ind).latency })
+            .headOption.foreach { case (index, size) =>
+            caches = caches.map {
+              case CacheServer(currInd, videos) if currInd == index => CacheServer(currInd, videoIndex :: videos)
+              case other => other
+            }
+            cacheSizesMap = cacheSizesMap.updated(index, cacheSizesMap(index) + videoSize)
+          }
         }
       }
-    }
     Result(caches)
   }
 
 
   def main(args: Array[String]): Unit = {
     val filenames =
-      "me_at_the_zoo.in" ::
-        "example.in" ::
+      "example.in" ::
+        "me_at_the_zoo.in" ::
         "trending_today.in" ::
+        "videos_worth_spreading.in" ::
         "kittens.in" ::
         Nil
     filenames.foreach { filename =>
+      println(s"Processing $filename...")
       val res = saveResult(solveTask(readTask(filename)))
       Files.write(Paths.get(filename.split('.').head + ".out"), res.getBytes(StandardCharsets.UTF_8))
     }
